@@ -13,5 +13,11 @@ service cloud.firestore {
       allow create: if true;
       allow read, update, delete: if false;
     }
+
+    // Custom figure requests - allow anyone to create, only admins to read
+    match /customFigureRequests/{document} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
   }
 }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, A11y } from 'swiper/modules';
-import { PlayCircle, Bell, X, CheckCircle, AlertCircle, Sparkles, Zap, Crown, ArrowRight } from 'lucide-react';
+import { PlayCircle, Bell, X, CheckCircle, AlertCircle, Sparkles, ArrowRight } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { fadeInUp, staggerContainer } from '../lib/animations';
@@ -55,38 +55,7 @@ const isVideoAvailable = (name: string): boolean => {
 };
 
 type SubscriptionStatus = 'idle' | 'submitting' | 'success' | 'error';
-type CustomFigureStep = 'prompt' | 'pricing' | 'checkout' | 'success';
-type PricingTier = 'standard' | 'priority' | 'premium';
-
-const PRICING_TIERS = {
-  standard: {
-    name: 'Standard',
-    price: 0,
-    priceLabel: 'Free',
-    delivery: '4-6 weeks',
-    description: 'Join the waitlist for your custom figure',
-    features: ['AI-generated portrait', 'Basic animation', 'Standard environment'],
-    icon: Sparkles,
-  },
-  priority: {
-    name: 'Priority',
-    price: 49,
-    priceLabel: '$49',
-    delivery: '7-10 days',
-    description: 'Expedited creation with priority queue',
-    features: ['AI-generated portrait', 'Premium animation', 'Custom environment', 'Priority support'],
-    icon: Zap,
-  },
-  premium: {
-    name: 'Premium',
-    price: 149,
-    priceLabel: '$149',
-    delivery: '3-5 days',
-    description: 'Rush delivery with full customization',
-    features: ['AI-generated portrait', 'Premium animation', 'Custom environment', 'Multiple poses', 'Video reenactment', 'Dedicated support'],
-    icon: Crown,
-  },
-};
+type CustomFigureStep = 'prompt' | 'contact' | 'success';
 
 const HistoricalFigures = () => {
   const [playingFigure, setPlayingFigure] = useState<string | null>(null);
@@ -99,7 +68,6 @@ const HistoricalFigures = () => {
   const [showCustomModal, setShowCustomModal] = useState(false);
   const [customStep, setCustomStep] = useState<CustomFigureStep>('prompt');
   const [customPrompt, setCustomPrompt] = useState('');
-  const [selectedTier, setSelectedTier] = useState<PricingTier>('standard');
   const [customEmail, setCustomEmail] = useState('');
   const [customName, setCustomName] = useState('');
   const [customStatus, setCustomStatus] = useState<SubscriptionStatus>('idle');
@@ -139,7 +107,6 @@ const HistoricalFigures = () => {
     setShowCustomModal(true);
     setCustomStep('prompt');
     setCustomPrompt('');
-    setSelectedTier('standard');
     setCustomEmail('');
     setCustomName('');
     setCustomStatus('idle');
@@ -160,11 +127,8 @@ const HistoricalFigures = () => {
         name: customName,
         email: customEmail,
         prompt: customPrompt,
-        tier: selectedTier,
-        tierName: PRICING_TIERS[selectedTier].name,
-        price: PRICING_TIERS[selectedTier].price,
-        estimatedDelivery: PRICING_TIERS[selectedTier].delivery,
         status: 'pending',
+        notifyEmail: 'james@hiapply.co',
         createdAt: serverTimestamp(),
       });
       setCustomStatus('success');
@@ -483,10 +447,9 @@ const HistoricalFigures = () => {
                 className="cta-button inline-flex items-center gap-2"
               >
                 <Sparkles size={18} />
-                Start Creating
+                Request a Figure
                 <ArrowRight size={18} />
               </button>
-              <span className="text-body-sm text-gray-500">Free waitlist • Priority options available</span>
             </div>
           </div>
         </motion.div>
@@ -657,77 +620,9 @@ const HistoricalFigures = () => {
                     </div>
 
                     <button
-                      onClick={() => customPrompt.trim() && setCustomStep('pricing')}
+                      onClick={() => customPrompt.trim() && setCustomStep('contact')}
                       disabled={!customPrompt.trim()}
                       className="cta-button w-full"
-                    >
-                      Continue to Pricing
-                      <ArrowRight size={18} className="inline ml-2" />
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 2: Pricing */}
-              {customStep === 'pricing' && (
-                <div className="custom-figure-step">
-                  <div className="text-center mb-6">
-                    <h3 className="text-heading-lg text-white mb-2">
-                      Choose Your Plan
-                    </h3>
-                    <p className="text-body-md text-gray-400">
-                      Select how quickly you'd like your figure created
-                    </p>
-                  </div>
-
-                  <div className="grid gap-4 mb-6">
-                    {(Object.keys(PRICING_TIERS) as PricingTier[]).map((tierKey) => {
-                      const tier = PRICING_TIERS[tierKey];
-                      const TierIcon = tier.icon;
-                      return (
-                        <button
-                          key={tierKey}
-                          onClick={() => setSelectedTier(tierKey)}
-                          className={`pricing-tier-card ${selectedTier === tierKey ? 'selected' : ''}`}
-                        >
-                          <div className="flex items-start gap-4">
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                              selectedTier === tierKey ? 'bg-primary-600' : 'bg-gray-800'
-                            }`}>
-                              <TierIcon className={`w-6 h-6 ${selectedTier === tierKey ? 'text-white' : 'text-gray-400'}`} />
-                            </div>
-                            <div className="flex-1 text-left">
-                              <div className="flex justify-between items-start mb-1">
-                                <h4 className="text-heading-sm text-white">{tier.name}</h4>
-                                <span className="text-heading-md text-primary-400">{tier.priceLabel}</span>
-                              </div>
-                              <p className="text-body-sm text-gray-400 mb-2">{tier.description}</p>
-                              <p className="text-body-sm text-primary-400">Delivery: {tier.delivery}</p>
-                            </div>
-                          </div>
-                          <ul className="mt-3 pt-3 border-t border-gray-800 grid grid-cols-2 gap-1">
-                            {tier.features.map((feature) => (
-                              <li key={feature} className="text-caption text-gray-500 flex items-center gap-1">
-                                <CheckCircle size={12} className="text-green-500 flex-shrink-0" />
-                                {feature}
-                              </li>
-                            ))}
-                          </ul>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setCustomStep('prompt')}
-                      className="cta-button-secondary flex-1"
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={() => setCustomStep('checkout')}
-                      className="cta-button flex-1"
                     >
                       Continue
                       <ArrowRight size={18} className="inline ml-2" />
@@ -736,39 +631,22 @@ const HistoricalFigures = () => {
                 </div>
               )}
 
-              {/* Step 3: Checkout/Email */}
-              {customStep === 'checkout' && (
+              {/* Step 2: Contact Info */}
+              {customStep === 'contact' && (
                 <div className="custom-figure-step">
                   <div className="text-center mb-6">
                     <h3 className="text-heading-lg text-white mb-2">
                       Complete Your Request
                     </h3>
                     <p className="text-body-md text-gray-400">
-                      We'll notify you when your custom figure is ready
+                      We'll send you a confirmation email once your request is received.
                     </p>
                   </div>
 
-                  {/* Order Summary */}
+                  {/* Request Summary */}
                   <div className="bg-dark-900/50 rounded-xl p-4 mb-6 border border-gray-800">
-                    <h4 className="text-body-sm font-semibold text-gray-400 mb-3">Order Summary</h4>
-                    <div className="space-y-2 text-body-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Figure:</span>
-                        <span className="text-white truncate max-w-[200px]">{customPrompt.slice(0, 50)}...</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Plan:</span>
-                        <span className="text-white">{PRICING_TIERS[selectedTier].name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Delivery:</span>
-                        <span className="text-primary-400">{PRICING_TIERS[selectedTier].delivery}</span>
-                      </div>
-                      <div className="flex justify-between pt-2 border-t border-gray-800">
-                        <span className="text-white font-semibold">Total:</span>
-                        <span className="text-primary-400 font-semibold">{PRICING_TIERS[selectedTier].priceLabel}</span>
-                      </div>
-                    </div>
+                    <h4 className="text-body-sm font-semibold text-gray-400 mb-3">Your Request</h4>
+                    <p className="text-body-sm text-white">{customPrompt}</p>
                   </div>
 
                   <form onSubmit={handleCustomSubmit} className="space-y-4">
@@ -807,7 +685,7 @@ const HistoricalFigures = () => {
                     <div className="flex gap-3">
                       <button
                         type="button"
-                        onClick={() => setCustomStep('pricing')}
+                        onClick={() => setCustomStep('prompt')}
                         className="cta-button-secondary flex-1"
                       >
                         Back
@@ -823,23 +701,15 @@ const HistoricalFigures = () => {
                             Submitting...
                           </>
                         ) : (
-                          <>
-                            {PRICING_TIERS[selectedTier].price === 0 ? 'Join Waitlist' : 'Submit Request'}
-                          </>
+                          'Submit Request'
                         )}
                       </button>
                     </div>
-
-                    {PRICING_TIERS[selectedTier].price > 0 && (
-                      <p className="text-caption text-gray-500 text-center">
-                        Payment will be collected separately. We'll email you a secure payment link.
-                      </p>
-                    )}
                   </form>
                 </div>
               )}
 
-              {/* Step 4: Success */}
+              {/* Step 3: Success */}
               {customStep === 'success' && (
                 <div className="custom-figure-step text-center">
                   <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -851,20 +721,8 @@ const HistoricalFigures = () => {
                   <p className="text-body-md text-gray-300 mb-4">
                     Thank you, {customName}! We've received your request for a custom historical figure.
                   </p>
-                  <div className="bg-dark-900/50 rounded-xl p-4 mb-6 border border-gray-800 text-left">
-                    <div className="space-y-2 text-body-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Plan:</span>
-                        <span className="text-white">{PRICING_TIERS[selectedTier].name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Estimated Delivery:</span>
-                        <span className="text-primary-400 font-semibold">{PRICING_TIERS[selectedTier].delivery}</span>
-                      </div>
-                    </div>
-                  </div>
                   <p className="text-body-sm text-gray-400 mb-6">
-                    We'll send updates to <span className="text-white">{customEmail}</span> as we bring your figure to life.
+                    A confirmation email will be sent to <span className="text-white">{customEmail}</span>. We'll be in touch soon to discuss bringing your figure to life.
                   </p>
                   <button
                     onClick={closeCustomModal}

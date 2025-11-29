@@ -285,6 +285,12 @@ body {
   box-shadow: none;
 }
 
+/* Remove margin when in flex container for proper alignment */
+.flex .cta-button,
+.flex .cta-button-secondary {
+  margin-top: 0;
+}
+
 /* Secondary Button */
 .cta-button-secondary {
   font-family: var(--font-sans);
