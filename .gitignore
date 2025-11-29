@@ -1,0 +1,5 @@
+# Firebase service account keys - NEVER COMMIT THESE
+*-firebase-adminsdk-*.json
+
+# OS files
+.DS_Store
