@@ -19,5 +19,11 @@ service cloud.firestore {
       allow create: if true;
       allow read, update, delete: if false;
     }
+
+    // Mail collection for Firebase Trigger Email extension - allow anyone to create
+    match /mail/{document} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
   }
 }

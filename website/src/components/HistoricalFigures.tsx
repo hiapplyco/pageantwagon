@@ -123,6 +123,7 @@ const HistoricalFigures = () => {
     setCustomStatus('submitting');
 
     try {
+      // Save the custom figure request
       await addDoc(collection(db, 'customFigureRequests'), {
         name: customName,
         email: customEmail,
@@ -131,6 +132,52 @@ const HistoricalFigures = () => {
         notifyEmail: 'james@hiapply.co',
         createdAt: serverTimestamp(),
       });
+
+      // Send confirmation email to the user via Firebase Trigger Email extension
+      await addDoc(collection(db, 'mail'), {
+        to: customEmail,
+        message: {
+          subject: 'Your Pageant Wagon Custom Figure Request',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #7c3aed;">Thank you for your request, ${customName}!</h2>
+              <p>We've received your custom historical figure request and are excited to bring your vision to life.</p>
+              <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #374151;">Your Request:</h3>
+                <p style="color: #4b5563;">${customPrompt}</p>
+              </div>
+              <p>Our team will review your request and reach out soon to discuss the details.</p>
+              <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+                Best regards,<br>
+                The Pageant Wagon Team
+              </p>
+            </div>
+          `,
+        },
+      });
+
+      // Send notification email to james@hiapply.co
+      await addDoc(collection(db, 'mail'), {
+        to: 'james@hiapply.co',
+        message: {
+          subject: `New Custom Figure Request from ${customName}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #7c3aed;">New Custom Figure Request</h2>
+              <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>Name:</strong> ${customName}</p>
+                <p><strong>Email:</strong> ${customEmail}</p>
+                <h3 style="margin-top: 16px; color: #374151;">Request:</h3>
+                <p style="color: #4b5563;">${customPrompt}</p>
+              </div>
+              <p style="color: #6b7280; font-size: 14px;">
+                Reply directly to ${customEmail} to follow up.
+              </p>
+            </div>
+          `,
+        },
+      });
+
       setCustomStatus('success');
       setCustomStep('success');
     } catch (error) {
