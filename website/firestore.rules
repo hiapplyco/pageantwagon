@@ -1,0 +1,17 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Contact form submissions - allow anyone to create, only admins to read
+    match /contactRequests/{document} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
+    // Figure subscription notifications - allow anyone to create, only admins to read
+    match /figureSubscriptions/{document} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+  }
+}
