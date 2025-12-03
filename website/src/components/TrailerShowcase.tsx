@@ -78,9 +78,12 @@ const TrailerShowcase = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, amount: 0.8 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-12 text-center"
+          className="mt-12 text-center flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <a href="#contact" className="cta-button">
+          <a href="#immersive-experiences" className="cta-button">
+            Explore All Solutions
+          </a>
+          <a href="#contact" className="cta-button-secondary">
             Schedule a Visit
           </a>
         </motion.div>

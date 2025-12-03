@@ -19,6 +19,7 @@ const Navbar = () => {
     { name: 'Experience', href: '#experience' },
     { name: 'Technology', href: '#technology' },
     { name: 'Figures', href: '#figures' },
+    { name: 'Solutions', href: '#immersive-experiences' },
     { name: 'Contact', href: '#contact' },
   ];
 
